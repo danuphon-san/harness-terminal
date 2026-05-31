@@ -14,7 +14,7 @@ concurrency:
 jobs:
   build-test:
     name: Build & test (macOS)
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
@@ -50,7 +50,7 @@ jobs:
 
   benchmarks:
     name: Benchmarks (non-blocking)
-    runs-on: macos-14
+    runs-on: macos-15
     # Perf baselines are informational here; never block a merge on runner variance.
     continue-on-error: true
     steps:
@@ -65,4 +65,3 @@ jobs:
         env:
           HARNESS_BENCHMARKS: "1"
         run: swift test -c release --filter HarnessBenchmarks
-</content>
