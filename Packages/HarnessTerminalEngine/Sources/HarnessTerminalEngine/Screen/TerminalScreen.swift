@@ -757,6 +757,10 @@ final class TerminalScreen {
                     i = n
                 }
             }
+            // The direct cell writes above bypass `writeCell`, so mark the row we just wrote
+            // dirty for incremental frame rebuild. (The scalar fallback marks via `writeCell`;
+            // `wrapLine`/`scrollUp` already mark the rows they touch.)
+            markRowDirty(cursorRow)
         }
     }
 
