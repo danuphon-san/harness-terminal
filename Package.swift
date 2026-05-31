@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "Harness",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS(.v15)],
     products: [
         .library(name: "HarnessCore", targets: ["HarnessCore"]),
         // Self-contained native terminal engine (VT parser + screen/grid model). Pure
@@ -17,11 +17,18 @@ let package = Package(
         // Native terminal renderer: pure-Swift color resolution + a Metal glyph/draw layer.
         .library(name: "HarnessTerminalRenderer", targets: ["HarnessTerminalRenderer"]),
         .library(name: "HarnessTerminalKit", targets: ["HarnessTerminalKit"]),
+        // Immersive first-run onboarding wizard (SwiftUI). Self-contained, no deps; embedded
+        // into Harness.app and shown on first launch.
+        .library(name: "HarnessOnboarding", targets: ["HarnessOnboarding"]),
         .executable(name: "Harness", targets: ["HarnessApp"]),
         .executable(name: "HarnessDaemon", targets: ["HarnessDaemon"]),
         .executable(name: "harness-cli", targets: ["HarnessCLI"]),
     ],
-    dependencies: [],
+    dependencies: [
+        // Sparkle: macOS auto-update (the only external dependency, and only for the GUI app —
+        // the engine/daemon/CLI stay first-party). Appcast hosted at harnesscli.dev.
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0"),
+    ],
     targets: [
         .target(
             name: "HarnessCore",
@@ -64,6 +71,12 @@ let package = Package(
             ],
             path: "Packages/HarnessTerminalKit/Sources/HarnessTerminalKit"
         ),
+        // Immersive onboarding wizard — pure SwiftUI/AppKit, no external or first-party
+        // dependencies (deliberately isolated, mirrors install paths via its own helpers).
+        .target(
+            name: "HarnessOnboarding",
+            path: "Packages/HarnessOnboarding/Sources/HarnessOnboarding"
+        ),
         // Daemon logic as a library so it is unit-testable; the executable below is a
         // thin `main.swift` wrapper over it.
         .target(
@@ -89,6 +102,8 @@ let package = Package(
                 "HarnessCore",
                 "HarnessTerminalKit",
                 "HarnessTheme",
+                "HarnessOnboarding",
+                .product(name: "Sparkle", package: "Sparkle"),
             ],
             path: "Apps/Harness/Sources/HarnessApp",
             exclude: ["Resources"]

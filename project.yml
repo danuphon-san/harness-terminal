@@ -2,7 +2,7 @@ name: Harness
 options:
   bundleIdPrefix: com.robert
   deploymentTarget:
-    macOS: "14.0"
+    macOS: "15.0"
   createIntermediateGroups: true
 settings:
   base:
@@ -15,6 +15,9 @@ settings:
 packages:
   Harness:
     path: .
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.6.0
 targets:
   Harness:
     type: application
@@ -35,12 +38,18 @@ targets:
         product: HarnessTerminalKit
       - package: Harness
         product: HarnessTheme
+      - package: Harness
+        product: HarnessOnboarding
+      - package: Sparkle
+        product: Sparkle
+        embed: true
+        codeSign: true
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.robert.harness
       INFOPLIST_FILE: Apps/Harness/Sources/HarnessApp/Resources/Info.plist
       CODE_SIGN_ENTITLEMENTS: Harness.entitlements
       SWIFT_VERSION: "6.0"
-      MACOSX_DEPLOYMENT_TARGET: "14.0"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     postBuildScripts:
       - name: Copy Bundled Tools
@@ -67,7 +76,7 @@ targets:
         product: HarnessTerminalEngine
     settings:
       SWIFT_VERSION: "6.0"
-      MACOSX_DEPLOYMENT_TARGET: "14.0"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
       # Pure-Swift target — no Objective-C consumers. Disabling the generated
       # `-Swift.h` header and defines-module avoids a spurious umbrella-header
       # warning about HarnessDaemonCore-Swift.h.
@@ -88,7 +97,7 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: com.robert.harness.daemon
       PRODUCT_NAME: HarnessDaemon
       SWIFT_VERSION: "6.0"
-      MACOSX_DEPLOYMENT_TARGET: "14.0"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
   harness-cli:
     type: tool
     platform: macOS
@@ -105,7 +114,7 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: com.robert.harness.cli
       PRODUCT_NAME: harness-cli
       SWIFT_VERSION: "6.0"
-      MACOSX_DEPLOYMENT_TARGET: "14.0"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
   HarnessCoreTests:
     type: bundle.unit-test
     platform: macOS
@@ -118,7 +127,7 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: com.robert.harness.HarnessCoreTests
       GENERATE_INFOPLIST_FILE: YES
       SWIFT_VERSION: "6.0"
-      MACOSX_DEPLOYMENT_TARGET: "14.0"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
   HarnessDaemonTests:
     type: bundle.unit-test
     platform: macOS
@@ -132,7 +141,7 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: com.robert.harness.HarnessDaemonTests
       GENERATE_INFOPLIST_FILE: YES
       SWIFT_VERSION: "6.0"
-      MACOSX_DEPLOYMENT_TARGET: "14.0"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
   HarnessCopyModeTests:
     type: bundle.unit-test
     platform: macOS
@@ -149,7 +158,7 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: com.robert.harness.HarnessCopyModeTests
       GENERATE_INFOPLIST_FILE: YES
       SWIFT_VERSION: "6.0"
-      MACOSX_DEPLOYMENT_TARGET: "14.0"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
   HarnessTerminalKitTests:
     type: bundle.unit-test
     platform: macOS
@@ -170,7 +179,7 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: com.robert.harness.HarnessTerminalKitTests
       GENERATE_INFOPLIST_FILE: YES
       SWIFT_VERSION: "6.0"
-      MACOSX_DEPLOYMENT_TARGET: "14.0"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
 schemes:
   Harness:
     build:

@@ -22,11 +22,32 @@ if [[ ! -d "$APP" ]]; then
 fi
 
 echo "Signing $APP..."
-codesign --force --deep --options runtime --sign "$IDENTITY" \
+# Sign inside-out (NOT --deep). Sparkle ships nested helpers — XPC services, Updater.app,
+# and the Autoupdate tool — that each need their own hardened-runtime signature. `--deep`
+# signs them with the app's identity but not correctly (Sparkle explicitly forbids it), so
+# the updater is rejected at runtime. Sign the deepest components first, then the framework,
+# then the embedded tools, then the app bundle.
+SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
+if [[ -d "$SPARKLE" ]]; then
+  echo "  Signing Sparkle.framework components..."
+  # XPC services and helper apps/tools live under Versions/<letter>; glob so a version
+  # bump (B -> C ...) keeps working.
+  for component in \
+    "$SPARKLE"/Versions/*/XPCServices/*.xpc \
+    "$SPARKLE"/Versions/*/Updater.app \
+    "$SPARKLE"/Versions/*/Autoupdate; do
+    [[ -e "$component" ]] || continue
+    codesign --force --options runtime --timestamp --sign "$IDENTITY" "$component"
+  done
+  codesign --force --options runtime --timestamp --sign "$IDENTITY" "$SPARKLE"
+fi
+
+codesign --force --options runtime --timestamp --sign "$IDENTITY" \
   "$APP/Contents/MacOS/HarnessDaemon" \
   "$APP/Contents/MacOS/harness-cli" \
   "$APP/Contents/MacOS/Harness"
-codesign --force --deep --options runtime --sign "$IDENTITY" "$APP"
+# Seal the app bundle last (no --deep — nested code is already signed above).
+codesign --force --options runtime --timestamp --sign "$IDENTITY" "$APP"
 
 if [[ -z "${APPLE_ID:-}" || -z "${APPLE_TEAM_ID:-}" || -z "${APPLE_APP_PASSWORD:-}" ]]; then
   echo "Set APPLE_ID, APPLE_TEAM_ID, APPLE_APP_PASSWORD to notarize."

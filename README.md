@@ -149,7 +149,7 @@ Regenerate the Dock icon after updating `AppIcon.appiconset`:
 
 ## Requirements
 
-- macOS 14.0+
+- macOS 15.0+
 - Xcode 16+ / Swift 6.0
 
 ## Documentation

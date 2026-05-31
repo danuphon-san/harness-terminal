@@ -14,6 +14,20 @@ cp "$BUILD_DIR/HarnessDaemon" "$APP/Contents/MacOS/HarnessDaemon"
 cp "$BUILD_DIR/harness-cli" "$APP/Contents/MacOS/harness-cli"
 cp "$ROOT/Apps/Harness/Sources/HarnessApp/Resources/Info.plist" "$APP/Contents/Info.plist"
 
+# Embed Sparkle.framework (the only external dependency, GUI-only). SwiftPM links it via
+# `@rpath`, so the app binary needs an rpath into Contents/Frameworks. `ditto` preserves the
+# framework's version symlinks + nested code signatures (a plain `cp` would flatten them).
+FRAMEWORK="$BUILD_DIR/Sparkle.framework"
+if [[ -d "$FRAMEWORK" ]]; then
+  mkdir -p "$APP/Contents/Frameworks"
+  ditto "$FRAMEWORK" "$APP/Contents/Frameworks/Sparkle.framework"
+  if ! otool -l "$APP/Contents/MacOS/Harness" | grep -q "@executable_path/../Frameworks"; then
+    install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP/Contents/MacOS/Harness"
+  fi
+else
+  echo "warning: $FRAMEWORK not found — build the Harness product first (Sparkle won't load)." >&2
+fi
+
 ICON="$ROOT/Apps/Harness/Resources/Harness.icns"
 if [[ ! -f "$ICON" ]]; then
   "$ROOT/Scripts/generate-app-icon.sh"

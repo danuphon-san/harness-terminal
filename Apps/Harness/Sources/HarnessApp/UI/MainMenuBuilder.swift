@@ -11,6 +11,11 @@ enum MainMenuBuilder {
         let aboutItem = NSMenuItem(title: "About Harness", action: #selector(MenuTarget.showAbout), keyEquivalent: "")
         aboutItem.target = MenuTarget.shared
         app.submenu?.addItem(aboutItem)
+        app.submenu?.addItem(.separator())
+        let checkUpdates = NSMenuItem(title: "Check for Updates…", action: SparkleUpdater.checkForUpdatesAction, keyEquivalent: "")
+        checkUpdates.target = SparkleUpdater.shared.controller
+        app.submenu?.addItem(checkUpdates)
+        app.submenu?.addItem(.separator())
         let installItem = NSMenuItem(title: "Install harness-cli…", action: #selector(MenuTarget.installCLI), keyEquivalent: "")
         installItem.target = MenuTarget.shared
         app.submenu?.addItem(installItem)

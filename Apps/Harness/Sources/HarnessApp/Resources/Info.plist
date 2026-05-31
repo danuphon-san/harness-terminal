@@ -21,10 +21,20 @@
     <key>CFBundleIconFile</key>
     <string>Harness</string>
     <key>LSMinimumSystemVersion</key>
-    <string>14.0</string>
+    <string>15.0</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
+    <!-- Sparkle auto-update. Appcast hosted on the website; updates are EdDSA-signed
+         (the public key below; the private key lives in the release machine's keychain). -->
+    <key>SUFeedURL</key>
+    <string>https://harnesscli.dev/appcast.xml</string>
+    <key>SUPublicEDKey</key>
+    <string>3LBPx8Uv5L5ptqRqdCWovmUIPLxcDEPnivy8cOpIlH8=</string>
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
+    <key>SUScheduledCheckInterval</key>
+    <integer>86400</integer>
 </dict>
 </plist>

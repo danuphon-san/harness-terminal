@@ -1,4 +1,4 @@
-.PHONY: build preview preview-stop preview-clean release package dmg sign icon clean
+.PHONY: build preview preview-stop preview-clean release package dmg sign appcast icon clean
 
 build:
 	swift build
@@ -26,6 +26,10 @@ dmg: release
 
 sign: release
 	./Scripts/sign-and-notarize.sh
+
+# Generate/refresh the Sparkle appcast from signed archives in ./dist (see the script header).
+appcast:
+	./Scripts/generate-appcast.sh
 
 clean:
 	swift package clean
