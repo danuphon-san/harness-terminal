@@ -1110,25 +1110,14 @@ struct HarnessCLI {
         } else {
             fputs("warning: HarnessDaemon binary not found; LaunchAgent not installed\n", stderr)
         }
-        // Shell completions. fish has a drop-in completions directory we can write directly
-        // (auto-loaded, no rc edit), so we always lay it down — it's inert unless fish is used.
-        // zsh/bash load completions from a sourced file, which is the user's shell config to own,
-        // so we print the exact one-liner for the detected login shell rather than editing their
-        // rc (matching gh/kubectl). `harness-cli completions <shell>` works for any shell, and the
-        // generated script is correct whether sourced/eval'd or placed on $fpath.
+        // Shell completions for the user's login shell, so they work out of the box: fish drops
+        // into its auto-load dir; zsh/bash get a guarded, backed-up, idempotent `source` block
+        // wired into the rc (the same mechanism as install-shell-integration). Any shell can also
+        // regenerate the script on demand with `harness-cli completions <shell>`.
         do {
-            let url = try ShellCompletionInstaller.installFishCompletion()
-            print("fish-completion: \(url.path)")
+            for line in try ShellCompletionInstaller.installForLoginShell() { print(line) }
         } catch {
-            fputs("warning: fish completion install failed: \(error)\n", stderr)
-        }
-        switch ShellIntegration.Shell.detect(from: ProcessInfo.processInfo.environment["SHELL"] ?? "") {
-        case .zsh:
-            print("zsh-completion: add to ~/.zshrc (after compinit):  eval \"$(harness-cli completions zsh)\"")
-        case .bash:
-            print("bash-completion: add to ~/.bashrc:  eval \"$(harness-cli completions bash)\"")
-        case .fish, nil:
-            break   // fish is auto-installed above; an unknown shell can use `completions <shell>`.
+            fputs("warning: shell completion install failed: \(error)\n", stderr)
         }
         print("Tip: run 'harness-cli install-shell-integration' to enable OSC 133 prompt marks, "
             + "the success/failure gutter, and prompt jumping.")
