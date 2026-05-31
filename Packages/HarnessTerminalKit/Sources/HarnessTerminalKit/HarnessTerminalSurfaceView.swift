@@ -398,12 +398,11 @@ public final class HarnessTerminalSurfaceView: NSView {
 
     // MARK: - Layout & rendering
 
-    deinit {
-        // A CADisplayLink retains its target, so the view ↔ link reference is a cycle that
-        // `viewDidMoveToWindow(nil)` normally breaks via `stopDisplayLink()`. This is a safety net
-        // for any teardown that bypasses that path, so an orphaned link can't keep firing.
-        renderLink?.invalidate()
-    }
+    // No deinit teardown for the display link: a CADisplayLink strongly retains its target, so the
+    // link keeps this view alive until `stopDisplayLink()` calls `invalidate()` (which also nils
+    // `renderLink`). deinit therefore only runs once the link is already gone — accessing the
+    // main-actor-isolated `renderLink` from a nonisolated deinit would also be a Swift 6 error.
+    // `viewDidMoveToWindow(nil)` is the teardown hook (AppKit always calls it before dealloc).
 
     public override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
